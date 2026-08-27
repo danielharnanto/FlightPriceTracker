@@ -1,0 +1,32 @@
+FLIGHT PRICE REPORT — 2026-08-27
+==========================================================
+
+Fukuoka via Seoul — Dec 2026
+----------------------------------------------------------
+* Air Premia only: $1,338 | low $1,338 high $1,338
+  Any airline (benchmark): —
+
+Japan → Taiwan → Malaysia → Indonesia — Feb–Mar 2027
+----------------------------------------------------------
+  Round trip · out Feb 15 · back Mar 20 (HND): —
+* Round trip · out Feb 16 · back Mar 22 (HND): $990 | low $990 high $990
+  Round trip · out Feb 18 · back Mar 25 (HND): —
+  One way · JFK→HND Feb 15: —
+  One way · JFK→HND Feb 17: —
+  One way · Jakarta CGK→JFK Mar 22: —
+  One way · Jakarta CGK→JFK Mar 25: —
+  Round trip $990 vs open jaw — -> round_trip
+
+Italy → France → Netherlands → Belgium — Jun 2027
+----------------------------------------------------------
+* Norse · out Jun 2 · back Jun 13: —
+  Norse · out Jun 2 · back Jun 14: —
+  Norse · out Jun 3 · back Jun 13: —
+  Norse · out Jun 3 · back Jun 14: —
+  Any airline · out Jun 2 · back Jun 13 (benchmark): —
+
+FAILED SEARCHES:
+  - Norse · out Jun 2 · back Jun 13: Google Flights hasn't returned any results for this query.
+
+API searches this month: 3/100
+(* = checked today)
