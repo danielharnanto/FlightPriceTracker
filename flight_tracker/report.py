@@ -78,7 +78,17 @@ class ReportBuilder:
         cur_price = latest["price"] if latest else None
         prev_price = prev["price"] if prev else None
         arrow, dtext, dcolor = delta_bits(cur_price, prev_price)
+        last_any = self.store.last_row(q["id"])
+        # A route the airline hasn't published yet looks identical to a broken
+        # query unless we say so explicitly.
+        awaiting = bool(
+            last_any is not None
+            and last_any["status"] == "no_results"
+            and cur_price is None
+        )
         return {
+            "awaiting_schedule": awaiting,
+            "last_status": last_any["status"] if last_any else None,
             "q": q,
             "checked_today": q["id"] in self.checked,
             "latest": latest,
@@ -320,6 +330,9 @@ class ReportBuilder:
                     if st["n"] else "—"
                 )
                 when = v["latest"]["observed_date"] if v["latest"] else "never"
+                if v["awaiting_schedule"]:
+                    lohi = "not yet in schedules"
+                    when = v["last_status"] and self.store.last_row(v["q"]["id"])["observed_date"] or when
                 spark = f'<div style="color:{MUTED};font-size:11px;letter-spacing:1px;">{v["spark"]}</div>' if v["spark"] else ""
                 parts.append(f"""<tr>
   <td style="padding:8px 6px 8px 0;border-bottom:1px solid #f1f2f4;">

@@ -28,11 +28,38 @@ def day_index(d: date) -> int:
     return (d - EPOCH).days
 
 
-def pick_queries(config: dict, d: date) -> list[tuple[dict, dict]]:
+DORMANT_AFTER = 2      # consecutive empty results before a query goes dormant
+REPROBE_DAYS = 7       # how often to re-check a dormant query anyway
+
+
+def is_dormant(store, query_id: str, today: date) -> bool:
+    """True if a query keeps coming back empty and isn't due for a re-probe.
+
+    Routes far enough out that airlines haven't published schedules yet return
+    nothing for months. Burning a rotation slot on them every day wastes the
+    search budget, so they get parked and re-probed weekly until they wake up.
+    """
+    if store is None:
+        return False
+    recent = store.recent_statuses(query_id, limit=DORMANT_AFTER)
+    if len(recent) < DORMANT_AFTER or not all(s == "no_results" for s in recent):
+        return False
+    last = store.last_row(query_id)
+    if not last:
+        return False
+    try:
+        age = (today - date.fromisoformat(last["observed_date"])).days
+    except (TypeError, ValueError):
+        return False
+    return age < REPROBE_DAYS
+
+
+def pick_queries(config: dict, d: date, store=None) -> list[tuple[dict, dict]]:
     """One query per trip per day, rotating through each trip's variant list.
 
     Different trips use offset rotations so a single day never checks the same
-    slot in every list (keeps coverage even if runs are missed).
+    slot in every list (keeps coverage even if runs are missed). Dormant
+    queries are stepped over rather than wasting the slot.
     """
     per_trip = int(config.get("searches_per_trip_per_day", 1))
     di = day_index(d)
@@ -41,17 +68,33 @@ def pick_queries(config: dict, d: date) -> list[tuple[dict, dict]]:
         qs = trip["queries"]
         if not qs:
             continue
+        chosen: list[dict] = []
         for k in range(min(per_trip, len(qs))):
-            idx = (di * per_trip + k + offset) % len(qs)
-            picks.append((trip, qs[idx]))
+            start = (di * per_trip + k + offset) % len(qs)
+            # Walk forward until we find a live query we haven't already picked.
+            for step in range(len(qs)):
+                cand = qs[(start + step) % len(qs)]
+                if cand in chosen:
+                    continue
+                if is_dormant(store, cand["id"], d):
+                    continue
+                chosen.append(cand)
+                break
+            else:
+                # Every variant is dormant — fall back to the rotation slot so
+                # the trip is never silently dropped entirely.
+                cand = qs[start]
+                if cand not in chosen:
+                    chosen.append(cand)
+        picks.extend((trip, q) for q in chosen)
     return picks
 
 
-def preview_next(config: dict, d: date, days: int = 3) -> list[str]:
+def preview_next(config: dict, d: date, days: int = 3, store=None) -> list[str]:
     out = []
     for n in range(1, days + 1):
         nd = d + timedelta(days=n)
-        labels = [q["label"] for _, q in pick_queries(config, nd)]
+        labels = [q["label"] for _, q in pick_queries(config, nd, store)]
         out.append(f'{nd.strftime("%b %-d")}: ' + "; ".join(labels))
     return out
 
@@ -112,7 +155,15 @@ def run(args: argparse.Namespace) -> int:
                     observed_at=f"{d.isoformat()}T12:00:00+00:00", observed_date=d.isoformat(),
                 )
 
-    picks = pick_queries(config, today)
+    picks = pick_queries(config, today, store)
+    if args.only:
+        wanted = {x.strip() for x in args.only.split(",")}
+        picks = [
+            (t, q) for t in config["trips"] for q in t["queries"] if q["id"] in wanted
+        ]
+        if not picks:
+            print(f"error: no queries matched --only {args.only}", file=sys.stderr)
+            return 2
     budget_total = int(config.get("monthly_search_budget", 100))
     already = store.searches_this_month()
 
@@ -168,7 +219,7 @@ def run(args: argparse.Namespace) -> int:
         budget_used=store.searches_this_month(),
         budget_total=budget_total,
         errors=errors,
-        next_up=preview_next(config, today, days=2),
+        next_up=preview_next(config, today, days=2, store=store),
     )
 
     dated = outdir / f"report-{today.isoformat()}.html"
@@ -184,7 +235,14 @@ def run(args: argparse.Namespace) -> int:
         print(send_email(subject, html_body, text_body))
 
     store.close()
-    return 0 if fail == 0 else 1
+
+    # Partial failures are normal (an airline with no schedule loaded yet) and
+    # must not fail the job — that would skip the step that commits history.
+    # Only a total wipeout is worth a non-zero exit.
+    if picks and fail == len(picks):
+        print("error: every search failed today", file=sys.stderr)
+        return 1
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -198,6 +256,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--email", action="store_true", help="send the report over SMTP")
     p.add_argument("--date", default=None, help="override today's date (YYYY-MM-DD)")
     p.add_argument("--force", action="store_true", help="run even if over monthly budget")
+    p.add_argument("--only", default=None, help="comma-separated query ids to check instead of the rotation")
     args = p.parse_args(argv)
     try:
         return run(args)

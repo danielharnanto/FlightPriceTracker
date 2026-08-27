@@ -135,6 +135,21 @@ class Store:
         )
         return cur.fetchone()
 
+    def last_row(self, query_id: str) -> Optional[sqlite3.Row]:
+        """Most recent observation of any status (including failures)."""
+        cur = self.conn.execute(
+            "SELECT * FROM observations WHERE query_id=? ORDER BY observed_at DESC LIMIT 1",
+            (query_id,),
+        )
+        return cur.fetchone()
+
+    def recent_statuses(self, query_id: str, limit: int = 3) -> list[str]:
+        cur = self.conn.execute(
+            "SELECT status FROM observations WHERE query_id=? ORDER BY observed_at DESC LIMIT ?",
+            (query_id, limit),
+        )
+        return [r["status"] for r in cur.fetchall()]
+
     def history(self, query_id: str, limit: int = 90) -> list[sqlite3.Row]:
         cur = self.conn.execute(
             """SELECT * FROM observations

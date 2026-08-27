@@ -36,7 +36,10 @@ jobs:
           REPORT_FROM: ${{ secrets.REPORT_FROM }}
         run: python -m flight_tracker.main --email
 
+      # always() matters: a single airline returning no results must never
+      # cost us the readings that did succeed.
       - name: Persist price history
+        if: always()
         run: |
           git config user.name  "flight-tracker"
           git config user.email "actions@github.com"
