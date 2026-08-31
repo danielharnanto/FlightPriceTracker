@@ -6,89 +6,38 @@
   "monthly_search_budget": 100,
   "searches_per_trip_per_day": 1,
   "timezone": "America/New_York",
-
   "trips": [
     {
-      "id": "fukuoka",
-      "name": "Fukuoka via Seoul — Dec 2026",
-      "events": "Fukuoka, Japan Dec 19–20, 2026. Fly EWR→ICN Dec 5, return ICN→EWR Dec 24. Seoul→Fukuoka hop and Japan rail handled separately.",
-      "queries": [
-        {
-          "id": "FUK_rt_premia",
-          "label": "Air Premia only",
-          "type": "round_trip",
-          "from": "EWR",
-          "to": "ICN",
-          "outbound": "2026-12-05",
-          "return": "2026-12-24",
-          "include_airlines": ["YP"],
-          "mock_airlines": ["Air Premia"]
-        },
-        {
-          "id": "FUK_rt_any",
-          "label": "Any airline (benchmark)",
-          "type": "round_trip",
-          "from": "EWR",
-          "to": "ICN",
-          "outbound": "2026-12-05",
-          "return": "2026-12-24",
-          "mock_airlines": ["Korean Air", "Asiana", "United", "Air Premia"]
-        }
-      ]
-    },
-
-    {
       "id": "asia",
-      "name": "Japan → Taiwan → Malaysia → Indonesia — Feb–Mar 2027",
-      "events": "Aichi Feb 20–21 · Kaohsiung Mar 6–7 · Kuala Lumpur Mar 13 · Jakarta Mar 20, 2027. Outbound JFK→HND Feb 15–18; return from HND or from Jakarta (CGK) Mar 20–25.",
+      "name": "Asia multi-city (via LAX) — Feb–Mar 2027",
+      "events": "Aichi Feb 20–21 · Kaohsiung Mar 6–7 · Kuala Lumpur Mar 13 · Jakarta Mar 20, 2027. Outbound JFK→LAX Feb 12 or 13; home from Jakarta (CGK) Mar 22 or 25.",
       "compare_open_jaw": {
-        "round_trip_ids": ["ASIA_rt_0215_0320", "ASIA_rt_0216_0322", "ASIA_rt_0218_0325"],
-        "outbound_ids": ["ASIA_ow_out_0215", "ASIA_ow_out_0217"],
-        "return_ids": ["ASIA_ow_cgk_0322", "ASIA_ow_cgk_0325"]
+        "round_trip_ids": [],
+        "outbound_ids": [
+          "ASIA_ow_lax_0212",
+          "ASIA_ow_lax_0213"
+        ],
+        "return_ids": [
+          "ASIA_ow_cgk_0322",
+          "ASIA_ow_cgk_0325"
+        ]
       },
       "queries": [
         {
-          "id": "ASIA_rt_0215_0320",
-          "label": "Round trip · out Feb 15 · back Mar 20 (HND)",
-          "type": "round_trip",
-          "from": "JFK",
-          "to": "HND",
-          "outbound": "2027-02-15",
-          "return": "2027-03-20"
-        },
-        {
-          "id": "ASIA_rt_0216_0322",
-          "label": "Round trip · out Feb 16 · back Mar 22 (HND)",
-          "type": "round_trip",
-          "from": "JFK",
-          "to": "HND",
-          "outbound": "2027-02-16",
-          "return": "2027-03-22"
-        },
-        {
-          "id": "ASIA_rt_0218_0325",
-          "label": "Round trip · out Feb 18 · back Mar 25 (HND)",
-          "type": "round_trip",
-          "from": "JFK",
-          "to": "HND",
-          "outbound": "2027-02-18",
-          "return": "2027-03-25"
-        },
-        {
-          "id": "ASIA_ow_out_0215",
-          "label": "One way · JFK→HND Feb 15",
+          "id": "ASIA_ow_lax_0212",
+          "label": "One way · JFK→LAX Feb 12",
           "type": "one_way",
           "from": "JFK",
-          "to": "HND",
-          "outbound": "2027-02-15"
+          "to": "LAX",
+          "outbound": "2027-02-12"
         },
         {
-          "id": "ASIA_ow_out_0217",
-          "label": "One way · JFK→HND Feb 17",
+          "id": "ASIA_ow_lax_0213",
+          "label": "One way · JFK→LAX Feb 13",
           "type": "one_way",
           "from": "JFK",
-          "to": "HND",
-          "outbound": "2027-02-17"
+          "to": "LAX",
+          "outbound": "2027-02-13"
         },
         {
           "id": "ASIA_ow_cgk_0322",
@@ -108,7 +57,6 @@
         }
       ]
     },
-
     {
       "id": "europe",
       "name": "Italy → France → Netherlands → Belgium — Jun 2027",
@@ -122,8 +70,12 @@
           "to": "FCO",
           "outbound": "2027-06-02",
           "return": "2027-06-13",
-          "include_airlines": ["N0"],
-          "mock_airlines": ["Norse Atlantic"]
+          "include_airlines": [
+            "N0"
+          ],
+          "mock_airlines": [
+            "Norse Atlantic"
+          ]
         },
         {
           "id": "EUR_rt_norse_0602_0614",
@@ -133,8 +85,12 @@
           "to": "FCO",
           "outbound": "2027-06-02",
           "return": "2027-06-14",
-          "include_airlines": ["N0"],
-          "mock_airlines": ["Norse Atlantic"]
+          "include_airlines": [
+            "N0"
+          ],
+          "mock_airlines": [
+            "Norse Atlantic"
+          ]
         },
         {
           "id": "EUR_rt_norse_0603_0613",
@@ -144,8 +100,12 @@
           "to": "FCO",
           "outbound": "2027-06-03",
           "return": "2027-06-13",
-          "include_airlines": ["N0"],
-          "mock_airlines": ["Norse Atlantic"]
+          "include_airlines": [
+            "N0"
+          ],
+          "mock_airlines": [
+            "Norse Atlantic"
+          ]
         },
         {
           "id": "EUR_rt_norse_0603_0614",
@@ -155,8 +115,12 @@
           "to": "FCO",
           "outbound": "2027-06-03",
           "return": "2027-06-14",
-          "include_airlines": ["N0"],
-          "mock_airlines": ["Norse Atlantic"]
+          "include_airlines": [
+            "N0"
+          ],
+          "mock_airlines": [
+            "Norse Atlantic"
+          ]
         },
         {
           "id": "EUR_rt_any_0602_0613",
@@ -166,7 +130,12 @@
           "to": "FCO",
           "outbound": "2027-06-02",
           "return": "2027-06-13",
-          "mock_airlines": ["ITA Airways", "Delta", "Norse Atlantic", "United"]
+          "mock_airlines": [
+            "ITA Airways",
+            "Delta",
+            "Norse Atlantic",
+            "United"
+          ]
         }
       ]
     }

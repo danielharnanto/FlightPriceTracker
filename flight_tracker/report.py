@@ -261,7 +261,12 @@ class ReportBuilder:
             name = tv["trip"]["name"].split("—")[0].strip()
             if c:
                 price = money(c["price"], self.currency)
-                sub = f'{c["arrow"]} {c["delta_text"]}' if c["arrow"] else "first reading"
+                if c["arrow"]:
+                    sub = f'{c["arrow"]} {c["delta_text"]}'
+                else:
+                    # A synthetic total carries its own caption; a genuinely
+                    # unseen query has nothing to compare against yet.
+                    sub = c["delta_text"] if c["price"] is not None else "first reading"
                 color = c["delta_color"]
             else:
                 price, sub, color = "—", "no data yet", MUTED
@@ -346,7 +351,24 @@ class ReportBuilder:
 
             # open-jaw comparison
             oj = tv["open_jaw"]
-            if oj:
+            if oj and oj["rt_total"] is None:
+                # No round-trip alternative configured — this is just the trip
+                # total, not a comparison, so don't dress it up as one.
+                parts.append(f"""<tr><td style="padding:10px 18px 18px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fbfaf7;border:1px solid #eee7d8;border-radius:9px;">
+<tr><td style="padding:14px 15px;">
+  <div style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:#8a6d3b;font-weight:700;">Cheapest trip total</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:9px;font-size:13px;">
+    <tr><td style="padding:3px 0;">Outbound<div style="font-size:11.5px;color:{MUTED};">{e(str(oj["out_label"] or "—"))}</div></td>
+        <td align="right" style="padding:3px 0;font-weight:700;">{money(oj["out_price"], self.currency)}</td></tr>
+    <tr><td style="padding:3px 0;">Home<div style="font-size:11.5px;color:{MUTED};">{e(str(oj["back_label"] or "—"))}</div></td>
+        <td align="right" style="padding:3px 0;font-weight:700;">{money(oj["back_price"], self.currency)}</td></tr>
+    <tr><td style="padding:8px 0 0;border-top:1px solid #eee7d8;font-weight:700;">Total</td>
+        <td align="right" style="padding:8px 0 0;border-top:1px solid #eee7d8;font-weight:700;font-size:15px;">{money(oj["combo_total"], self.currency)}</td></tr>
+  </table>
+  <div style="margin-top:9px;font-size:11.5px;color:{MUTED};">Long-haul legs onward from LAX and between Asian cities are booked separately and not tracked here.</div>
+</td></tr></table></td></tr>""")
+            elif oj:
                 if oj["winner"] == "combo":
                     verdict = f'Two one-ways win by {money(oj["savings"], self.currency)}'
                     vcolor = DOWN
@@ -417,7 +439,11 @@ class ReportBuilder:
                     line += f' | low {money(st["low"], self.currency)} high {money(st["high"], self.currency)}'
                 L.append(line)
             oj = tv["open_jaw"]
-            if oj:
+            if oj and oj["rt_total"] is None:
+                L.append(f'  Trip total: {money(oj["out_price"], self.currency)} out + '
+                         f'{money(oj["back_price"], self.currency)} home = '
+                         f'{money(oj["combo_total"], self.currency)}')
+            elif oj:
                 L.append(f'  Round trip {money(oj["rt_total"], self.currency)} vs '
                          f'open jaw {money(oj["combo_total"], self.currency)}'
                          f' -> {oj["winner"] or "insufficient data"}')
