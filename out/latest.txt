@@ -1,20 +1,24 @@
-FLIGHT PRICE REPORT — 2026-09-01
+FLIGHT PRICE REPORT — 2026-09-02
 ==========================================================
 
 Asia multi-city (via LAX) — Feb–Mar 2027
 ----------------------------------------------------------
-  One way · JFK→LAX Feb 12: —
+* One way · JFK→LAX Feb 12: $249 | low $249 high $249
   One way · JFK→LAX Feb 13: —
   One way · Jakarta CGK→JFK Mar 22: $640 | low $640 high $640
-* One way · Jakarta CGK→JFK Mar 25: $659 | low $659 high $659
+  One way · Jakarta CGK→JFK Mar 25: $659 | low $659 high $659
+  Trip total: $249 out + $640 home = $889
 
 Italy → France → Netherlands → Belgium — Jun 2027
 ----------------------------------------------------------
-  Norse · out Jun 2 · back Jun 13: —
+* Norse · out Jun 2 · back Jun 13: —
   Norse · out Jun 2 · back Jun 14: —
   Norse · out Jun 3 · back Jun 13: —
   Norse · out Jun 3 · back Jun 14: —
-* Any airline · out Jun 2 · back Jun 13 (benchmark): $729 | low $729 high $729
+  Any airline · out Jun 2 · back Jun 13 (benchmark): $729 | low $729 high $729
 
-API searches this month: 2/100
+FAILED SEARCHES:
+  - Norse · out Jun 2 · back Jun 13: Google Flights hasn't returned any results for this query.
+
+API searches this month: 4/100
 (* = checked today)
